@@ -61,17 +61,17 @@ Bu bot orqali siz o'z kompaniyangiz uchun vakansiya e'lonini yaratishingiz mumki
   async handleTextInput(@Ctx() ctx: BotContext) {
     if (!ctx.session?.step) return
     
-    let text: string
+    let text: string;
     if ('text' in ctx.message) {
-      text = ctx.message.text
+      text = ctx.message.text;
     } else {
-      return
+      return null
     }
-    const userId = ctx.from.id
+    const userId = ctx.from.id;
     
     switch (ctx.session.step) {
       case "company":
-        ctx.session.vacancyData.company = text
+        ctx.session.vacancyData.company = text;
         ctx.session.step = "technology"
         await ctx.reply("Qanday texnologiyalar/ko'nikmalar talab qilinadi?")
         break
@@ -204,6 +204,7 @@ Bu bot orqali siz o'z kompaniyangiz uchun vakansiya e'lonini yaratishingiz mumki
   async markVacancyNotFilled(@Ctx() ctx: BotContext) {
     const vacancyId = ctx.match[1]
     
+    // Bu yerda hech qanday o'zgartirish qilmaymiz, faqat xabar yuboramiz
     await ctx.editMessageText("Tushunildi. Vakansiya hali ham faol.")
   }
 }

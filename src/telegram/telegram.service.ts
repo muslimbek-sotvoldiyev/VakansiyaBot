@@ -4,7 +4,6 @@ import type { Telegraf, Context } from "telegraf"
 import { ConfigService } from "@nestjs/config"
 import type { VacancyDocument } from "../vacancy/schemas/vacancy.schema"
 
-
 @Injectable()
 export class TelegramService {
   private readonly adminChatId: string
@@ -40,18 +39,18 @@ export class TelegramService {
     const message = this.formatVacancyMessage(vacancy)
     const hashtags = this.generateHashtags(vacancy)
     const fullMessage = `${message}\n\n${hashtags}`
-    
+
     const imageUrl = this.getImageUrlForCategory(vacancy.category)
-    
+
     const sentMessage = await this.bot.telegram.sendPhoto(
       this.groupChatId,
-      { url: imageUrl }, 
+      { url: imageUrl },
       {
         caption: fullMessage,
         parse_mode: "Markdown",
-      }
+      },
     )
-  
+
     return sentMessage.message_id
   }
 
@@ -120,5 +119,4 @@ export class TelegramService {
         return "https://i.postimg.cc/kG1DpmWQ/default.png"
     }
   }
-  
 }
