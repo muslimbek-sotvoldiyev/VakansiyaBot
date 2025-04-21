@@ -2,6 +2,7 @@ import { Action, Ctx, Hears, InjectBot, On, Start, Update } from "nestjs-telegra
 import { type Telegraf, type Context, Markup } from "telegraf"
 import { Inject, forwardRef } from "@nestjs/common"
 import { VacancyService } from "../vacancy/vacancy.service"
+import { TelegramService } from "./telegram.service"
 import type { CreateVacancyDto } from "../vacancy/dto/create-vacancy.dto"
 
 interface BotContext extends Context {
@@ -15,9 +16,12 @@ interface BotContext extends Context {
 @Update()
 export class TelegramUpdate {
   constructor(
-    @InjectBot() private bot: Telegraf<BotContext>,
+    @InjectBot()
+    private readonly bot: Telegraf<BotContext>,
     @Inject(forwardRef(() => VacancyService))
-    private vacancyService: VacancyService,
+    private readonly vacancyService: VacancyService,
+    @Inject(forwardRef(() => TelegramService))
+    private readonly telegramService: TelegramService,
   ) {}
 
   @Start()
@@ -179,17 +183,40 @@ Bu bot orqali siz o'z kompaniyangiz uchun vakansiya e'lonini yaratishingiz mumki
   @Action(/approve_(.+)/)
   async approveVacancy(@Ctx() ctx: BotContext) {
     const vacancyId = ctx.match[1]
-    await this.vacancyService.approveVacancy(vacancyId)
+    const adminChatId = ctx.chat.id.toString()
     
+    // Vakansiyani tasdiqlash
+    const vacancy = await this.vacancyService.approveVacancy(vacancyId)
+    
+    // Tasdiqlagan adminga xabar yuborish
     await ctx.editMessageText("Vakansiya tasdiqlandi va guruhga joylashtirildi.")
+    
+    // Boshqa adminlarga xabar yuborish
+    await this.telegramService.notifyAdminsAboutApproval(vacancy, adminChatId)
   }
 
   @Action(/reject_(.+)/)
   async rejectVacancy(@Ctx() ctx: BotContext) {
     const vacancyId = ctx.match[1]
-    await this.vacancyService.rejectVacancy(vacancyId)
+    const adminChatId = ctx.chat.id.toString()
     
+    // Vakansiyani rad etish
+    const vacancy = await this.vacancyService.rejectVacancy(vacancyId)
+    
+    // Rad etgan adminga xabar yuborish
     await ctx.editMessageText("Vakansiya rad etildi.")
+    
+    // Boshqa adminlarga xabar yuborish
+    await this.telegramService.notifyAdminsAboutRejection(vacancy, adminChatId)
+  }
+   
+  @Action(/not_filled_(.+)/)
+  async markVacancyNotFilled(@Ctx() ctx: BotContext) {
+    console.log('====================================');
+    console.log("keldi");
+    console.log('====================================');
+    await ctx.answerCbQuery("Qabul qilindi"); 
+    await ctx.editMessageText("Tushunildi. Vakansiya hali ham faol.") 
   }
 
   @Action(/filled_(.+)/)
@@ -200,11 +227,6 @@ Bu bot orqali siz o'z kompaniyangiz uchun vakansiya e'lonini yaratishingiz mumki
     await ctx.editMessageText("Vakansiya to'ldirilgan deb belgilandi. Guruhda e'lon yangilandi.")
   }
 
-  @Action(/not_filled_(.+)/)
-  async markVacancyNotFilled(@Ctx() ctx: BotContext) {
-    const vacancyId = ctx.match[1]
-    
-    // Bu yerda hech qanday o'zgartirish qilmaymiz, faqat xabar yuboramiz
-    await ctx.editMessageText("Tushunildi. Vakansiya hali ham faol.")
-  }
+ 
+  
 }

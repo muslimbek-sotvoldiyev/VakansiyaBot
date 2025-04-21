@@ -9,7 +9,8 @@ import { Cron } from "@nestjs/schedule"
 @Injectable()
 export class VacancyService {
   constructor(
-    @InjectModel(Vacancy.name) private vacancyModel: Model<VacancyDocument>,
+    @InjectModel(Vacancy.name)
+    private vacancyModel: Model<VacancyDocument>,
     @Inject(forwardRef(() => TelegramService))
     private telegramService: TelegramService,
   ) {}
@@ -73,45 +74,25 @@ export class VacancyService {
     return vacancy.save()
   }
 
-  // @Cron("* * * * *")
-  // async checkVacanciesForFollowUp() {
-  //   // Vaqt chegarasini 2 kundan 1 daqiqaga o'zgartirish
-  //   const oneMinuteAgo = new Date()
-  //   oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1)
+  @Cron("* * * * *")
+  async checkVacanciesForFollowUp() {
+    // Vaqt chegarasini 2 kundan 1 daqiqaga o'zgartirish
+    const oneMinuteAgo = new Date()
+    oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1)
 
-  //   // 1 daqiqa oldin tasdiqlangan vakansiyalarni topish
-  //   const vacancies = await this.vacancyModel.find({
-  //     status: "approved",
-  //     approvedAt: {
-  //       $gte: new Date(oneMinuteAgo.getTime()),
-  //       $lt: new Date(),
-  //     },
-  //   })
+    // 1 daqiqa oldin tasdiqlangan vakansiyalarni topish
+    const vacancies = await this.vacancyModel.find({
+      status: "approved",
+      approvedAt: {
+        $gte: new Date(oneMinuteAgo.getTime()),
+        $lt: new Date(),
+      },
+    })
 
-  //   // Qolgan kodlar o'zgarmaydi - har bir vakansiya uchun so'rov yuboradi
-  //   for (const vacancy of vacancies) {
-  //     await this.telegramService.sendFollowUpToEmployer(vacancy)
-  //   }
-  // }
 
-  // Har daqiqa ishga tushadi
-@Cron("* * * * *")
-async checkVacanciesForFollowUp() {
-  const now = new Date();
-  const oneMinuteAgo = new Date(now.getTime() - 60 * 1000); // 1 daqiqa oldingi vaqt
-
-  // Oxirgi 1 daqiqa ichida tasdiqlangan vakansiyalarni olish
-  const vacancies = await this.vacancyModel.find({
-    status: "approved",
-    approvedAt: {
-      $gte: oneMinuteAgo,
-      $lt: now,
-    },
-  });
-
-  for (const vacancy of vacancies) {
-    await this.telegramService.sendFollowUpToEmployer(vacancy);
+    // Qolgan kodlar o'zgarmaydi - har bir vakansiya uchun so'rov yuboradi
+    for (const vacancy of vacancies) {
+      await this.telegramService.sendFollowUpToEmployer(vacancy)
+    }
   }
-}
-
 }
