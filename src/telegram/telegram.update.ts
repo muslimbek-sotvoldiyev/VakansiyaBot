@@ -212,9 +212,6 @@ Bu bot orqali siz o'z kompaniyangiz uchun vakansiya e'lonini yaratishingiz mumki
    
   @Action(/not_filled_(.+)/)
   async markVacancyNotFilled(@Ctx() ctx: BotContext) {
-    console.log('====================================');
-    console.log("keldi");
-    console.log('====================================');
     await ctx.answerCbQuery("Qabul qilindi"); 
     await ctx.editMessageText("Tushunildi. Vakansiya hali ham faol.") 
   }
@@ -227,6 +224,4 @@ Bu bot orqali siz o'z kompaniyangiz uchun vakansiya e'lonini yaratishingiz mumki
     await ctx.editMessageText("Vakansiya to'ldirilgan deb belgilandi. Guruhda e'lon yangilandi.")
   }
 
- 
-  
 }
