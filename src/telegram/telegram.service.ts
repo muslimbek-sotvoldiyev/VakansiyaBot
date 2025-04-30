@@ -118,8 +118,6 @@ export class TelegramService {
 
   async sendFollowUpToEmployer(vacancy: VacancyDocument): Promise<void> {
     try {
-      console.log(`Sending follow-up to user ${vacancy.userId} for vacancy ${vacancy.company}`)
-
       await this.bot.telegram.sendMessage(
         vacancy.userId,
         `*${vacancy.company}*  kompaniyasi uchun e'lon bergan vakansiyangiz bo'yicha ishchi topdingizmi?`,
@@ -166,13 +164,13 @@ export class TelegramService {
   private getImageUrlForCategory(category: string): string {
     switch (category) {
       case "programming":
-        return "https://i.postimg.cc/kG1DpmWQ/programming.png"
+        return "https://i.postimg.cc/kG1DpmWQ/vakansiya.png"
       case "design":
-        return "https://i.postimg.cc/kM0WQQFv/design.png"
+        return "https://i.postimg.cc/kG1DpmWQ/vakansiya.png"
       case "smm":
-        return "https://i.postimg.cc/3JHyRBP2/smm.png"
+        return "https://i.postimg.cc/kG1DpmWQ/vakansiya.png"
       default:
-        return "https://i.postimg.cc/kG1DpmWQ/default.png"
+        return "https://i.postimg.cc/kG1DpmWQ/vakansiya.png"
     }
   }
 }
